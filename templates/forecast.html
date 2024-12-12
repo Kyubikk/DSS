@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: flex; height: 100vh; font-family: Arial, sans-serif;">
+    <!-- Sidebar -->
+    <div id="sidebar" style="width: 20%; background-color: #002855; padding: 15px; color: #FFFFFF; overflow-y: auto;">
+        <h3 style="text-align: center; color: #FFD700;">Products</h3>
+        <ul id="productList" style="list-style-type: none; padding: 0; font-size: 16px;">
+            <!-- Product names will be dynamically added here -->
+        </ul>
+    </div>
+
+    <!-- Main content -->
+    <div id="main-content" style="flex-grow: 1; background-color: #FFFFFF; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+        <!-- Total forecast chart -->
+        <h2 style="color: #002855; text-align: center;">Total Sales Forecast (30 Days)</h2>
+        <canvas id="totalForecastChart" style="max-width: 90%; height: 400px;"></canvas>
+
+        <!-- Product forecast chart -->
+        <div id="productForecastChartContainer" style="width: 90%; margin-top: 30px; display: none;">
+            <h2 id="productChartTitle" style="color: #002855; text-align: center;"></h2>
+            <canvas id="productForecastChart" style="height: 400px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Total sales forecast data
+    const totalForecastData = JSON.parse('{{ total_forecast | tojson | safe }}');
+    const productForecastData = JSON.parse('{{ product_forecasts | tojson | safe }}');
+
+    console.log("Total forecast data:", totalForecastData);
+    console.log("Product forecast data:", productForecastData);
+
+    // Render total sales chart (30 days)
+    const totalLabels = totalForecastData.map(item => item.date);
+    const totalData = totalForecastData.map(item => item.predicted_sales);
+
+    const totalCtx = document.getElementById('totalForecastChart').getContext('2d');
+    new Chart(totalCtx, {
+        type: 'line',
+        data: {
+            labels: totalLabels,
+            datasets: [{
+                label: 'Total Sales Forecast (VND)',
+                data: totalData,
+                borderColor: '#FFD700',
+                backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#002855',
+                        font: {
+                            size: 16
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#002855'
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#002855'
+                    }
+                }
+            }
+        }
+    });
+
+    // Group product forecast data by product name (7 days per product)
+    const groupedData = productForecastData.reduce((acc, item) => {
+        if (!acc[item.product_name]) acc[item.product_name] = [];
+        acc[item.product_name].push(item);
+        return acc;
+    }, {});
+
+    // Populate the sidebar with product names
+    const productList = document.getElementById('productList');
+    Object.keys(groupedData).forEach(productName => {
+        const li = document.createElement('li');
+        li.textContent = productName;
+        li.style.cursor = 'pointer';
+        li.style.padding = '10px';
+        li.style.color = '#FFD700';
+        li.style.borderBottom = '1px solid #D3D3D3';
+        li.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+        li.addEventListener('mouseover', () => {
+            li.style.backgroundColor = '#FFD700';
+            li.style.color = '#002855';
+        });
+        li.addEventListener('mouseout', () => {
+            li.style.backgroundColor = '#002855';
+            li.style.color = '#FFD700';
+        });
+        li.addEventListener('click', () => showProductChart(productName));
+        productList.appendChild(li);
+    });
+
+    // Show product chart when a product name is clicked
+    const productChartContainer = document.getElementById('productForecastChartContainer');
+    const productChartTitle = document.getElementById('productChartTitle');
+    const productChartCanvas = document.getElementById('productForecastChart');
+
+    let productChartInstance = null;
+
+    function showProductChart(productName) {
+        const productData = groupedData[productName];
+        if (!productData || productData.length === 0) {
+            alert(`No forecast data available for ${productName}`);
+            return;
+        }
+
+        const productLabels = productData.map(item => item.date);
+        const productSalesData = productData.map(item => item.predicted_sales);
+
+        productChartTitle.textContent = `Sales Forecast for ${productName} (7 Days)`;
+        productChartContainer.style.display = 'block';
+
+        if (productChartInstance) {
+            productChartInstance.destroy();
+        }
+
+        const productCtx = productChartCanvas.getContext('2d');
+        productChartInstance = new Chart(productCtx, {
+            type: 'line',
+            data: {
+                labels: productLabels,
+                datasets: [{
+                    label: `${productName} Sales Forecast (VND)`,
+                    data: productSalesData,
+                    borderColor: '#002855',
+                    backgroundColor: 'rgba(0, 40, 85, 0.2)',
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#002855',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#002855'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#002855'
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

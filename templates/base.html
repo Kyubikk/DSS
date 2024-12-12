@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNUIS Canteen DSS</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Global styles */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #F5F5F5;
+            color: #002855;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #002855;
+            color: #FFD700;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* Navigation styles */
+        nav {
+            background-color: #FFD700;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: #002855;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 10px;
+            font-size: 16px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main content styles */
+        main {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            width: 70%;
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #002855;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            margin-top: auto; /* Ensure footer sticks to the bottom */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>VNUIS Canteen Decision Support System</h1>
+    </header>
+    <nav>
+        <a href="/">Home</a> | <a href="/forecast">Forecast</a>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+        <div id="main-content" style="flex-grow: 1; background-color: #FFFFFF; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+        </div>
+        <div id="main-content" style="flex-grow: 1; background-color: #FFFFFF; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+
+        </div>
+    </main>
+    <footer>
+        &copy; 2024 VNUIS Canteen DSS. All rights reserved.
+    </footer>
+</body>
+</html>
